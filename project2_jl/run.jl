@@ -1,5 +1,6 @@
 include("helpers.jl")
 include("work.jl")
+include("plots.jl")
 
 """
     optimize(f, g, c, x0, n, prob)
@@ -35,7 +36,7 @@ function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
     x_best = xhist[argmin(fhist)]
     
     if dev == true
-        return (x_best, xhist) 
+        return (x_best, xhist, fhist) 
     else
         return (x_best)
     end
@@ -54,25 +55,31 @@ function dev_main(probname::String, repeat::Int, opt_func, seed = 42)
 
     # initialize plots 
     contour_plot = make_contour_plot(probname)
+    converg_plot = make_convergence_plot()
 
 
     # Repeat the optimization with a different initialization
     for i in 1:repeat
         empty!(COUNTERS) # fresh eval-count each time
         Random.seed!(seed + i)
+
         # in development 
         dev = true
+
+        # optimize
         res = opt_func(f, g, c, x0(), n, probname, dev)
-        println(length(res))
         optima[i] = res[1]  
         nevals[i], scores[i] = get_score(f, g, c, optima[i], n)
 
         # plotting
         if length(res) > 1
-            xhist  = res[2]
+            xhist, fhist  = res[2:3]
+            update_contour_plot(xhist, contour_plot, probname)
+            update_convergence_plot(xhist, fhist, converg_plot, probname)
         end
-        update_contour_plot(xhist, contour_plot)
+        
     end
+    println(probname)
 
     return scores, nevals, optima
 end
