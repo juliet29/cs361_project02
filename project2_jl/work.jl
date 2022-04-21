@@ -2,11 +2,8 @@ include("helpers.jl")
 
 using Plots
 
-function simple5(x,y)
-    return -x * y + 2.0 / (3.0 * sqrt(3.0))
-end
 
-function contour_plot(xhist, probname, c_plot)
+function make_contour_plot(probname)
     println("making a contour plot")
     # visualize function problem
     prob = PROBS[probname]
@@ -15,8 +12,14 @@ function contour_plot(xhist, probname, c_plot)
     yr = Vector(-3:0.1:3)
     z = [prob.f([a,b]) for a=xr, b=yr]
     
-    contour!(c_plot, xr, yr, z, xlims=(-3,3), ylims=(-3,3),aspectratio=:equal)
-    # contour(xr, yr, probdef, levels=levels, xlims=(-3,3), ylims=(-3,3), aspectratio=:equal)
+    c_plot = contour!(xr, yr, z, xlims=(-3,3), ylims=(-3,3),aspectratio=:equal)
+
+    return c_plot
+
+end
+
+function update_contour_plot(xhist, c_plot)
+    println("updating contour plot")
     # visualize progress
     x1 = [xhist[i][1] for i = 1:length(xhist)]
     x2 = [xhist[i][2] for i = 1:length(xhist)]
@@ -25,9 +28,7 @@ function contour_plot(xhist, probname, c_plot)
     savefig("figures/example.png")
 end
 
-function make_contour_plot(xhist, probname)
 
-end
 
 
 

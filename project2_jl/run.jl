@@ -1,6 +1,5 @@
 include("helpers.jl")
 include("work.jl")
-using Plots
 
 """
     optimize(f, g, c, x0, n, prob)
@@ -54,7 +53,7 @@ function dev_main(probname::String, repeat::Int, opt_func, seed = 42)
     optima = Vector{typeof(x0())}(undef, repeat)
 
     # initialize plots 
-    # contour_plot = plot()
+    contour_plot = make_contour_plot(probname)
 
 
     # Repeat the optimization with a different initialization
@@ -72,7 +71,7 @@ function dev_main(probname::String, repeat::Int, opt_func, seed = 42)
         if length(res) > 1
             xhist  = res[2]
         end
-        contour_plot(xhist, probname, contour_plot)
+        update_contour_plot(xhist, contour_plot)
     end
 
     return scores, nevals, optima
