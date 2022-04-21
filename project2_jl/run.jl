@@ -56,6 +56,7 @@ function dev_main(probname::String, repeat::Int, opt_func, seed = 42)
     # initialize plots 
     contour_plot = make_contour_plot(probname)
     converg_plot = make_convergence_plot()
+    vio_plot = make_violation_plot()
 
 
     # Repeat the optimization with a different initialization
@@ -72,10 +73,13 @@ function dev_main(probname::String, repeat::Int, opt_func, seed = 42)
         nevals[i], scores[i] = get_score(f, g, c, optima[i], n)
 
         # plotting
-        if length(res) > 1
-            xhist, fhist  = res[2:3]
-            update_contour_plot(xhist, contour_plot, probname)
-            update_convergence_plot(xhist, fhist, converg_plot, probname)
+        if probname == "simple1" || probname == "simple2"
+            if length(res) > 1
+                xhist, fhist  = res[2:3]
+                update_contour_plot(xhist, contour_plot, probname)
+                update_convergence_plot(xhist, fhist, converg_plot, probname)
+                update_violation_plot(xhist, vio_plot, probname)
+            end
         end
         
     end

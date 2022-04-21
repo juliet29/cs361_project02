@@ -13,6 +13,7 @@ function plot_constraint(c, constraint_num)
     end
     c1 = reshape(c1, s1, s1)';
     c1_filt = ifelse.(c1 .< 0, c1, 0);
+    # println("c1_filt $c1_filt")
     contour!(xr, yr, c1_filt, xlims=(-3,3), ylims=(-3,3),aspectratio=:equal, colorbar_entry=false, fillalpha=0.3, linecolor=:white, linewidth=7, levels=40)
 end
 
@@ -42,7 +43,7 @@ function update_contour_plot(xhist, c_plot, probname)
     # visualize progress
     x1 = [xhist[i][1] for i = 1:length(xhist)]
     x2 = [xhist[i][2] for i = 1:length(xhist)]
-    plot!(c_plot, x1, x2, color=:black, linewidth=7, markershape = :circle, linestyle = :solid)
+    plot!(c_plot, x1, x2, linewidth=7, markershape = :star5, markercolor = cgrad(:blues), linestyle = :solid)
     
     savefig("figures/contour_$probname.png")
 end
@@ -71,11 +72,18 @@ end
 function update_violation_plot(xhist, c_plot, probname)
     prob = PROBS[probname]
     # maximum constraint violation versus iteration
-    
-    # println("updating converg plot")
-    x = [index for (index, value) in enumerate(xhist)]
-    plot!(c_plot, x, fhist, markershape = :star5, title=probname, dpi=300, size=(700, 500), markercolor=cgrad(:blues))
+    chist = [prob.c(x) for x in xhist]
+    println("chist $(chist[300:700]) \n")
+    max_chist = [maximum(c) for c in chist]
+    # println("max_chist $(max_chist[1:20]) \n")
+    violation = [max(c, 0) for c in max_chist]
+    # println("violation $(violation[1:1000]) \n")
 
-    fname = "figures/converg_$probname"
+
+    # # println("updating converg plot")
+    x = [index for (index, value) in enumerate(xhist)]
+    plot!(c_plot, x, violation, markershape = :star5, title=probname, dpi=300, size=(700, 500), markercolor=cgrad(:blues))
+
+    fname = "figures/violation_$probname"
     savefig(c_plot, fname)
 end
