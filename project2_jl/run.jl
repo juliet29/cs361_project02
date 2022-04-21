@@ -1,5 +1,6 @@
 include("helpers.jl")
 include("work.jl")
+using Plots
 
 """
     optimize(f, g, c, x0, n, prob)
@@ -52,6 +53,10 @@ function dev_main(probname::String, repeat::Int, opt_func, seed = 42)
     nevals = zeros(Int, repeat)
     optima = Vector{typeof(x0())}(undef, repeat)
 
+    # initialize plots 
+    # contour_plot = plot()
+
+
     # Repeat the optimization with a different initialization
     for i in 1:repeat
         empty!(COUNTERS) # fresh eval-count each time
@@ -67,19 +72,8 @@ function dev_main(probname::String, repeat::Int, opt_func, seed = 42)
         if length(res) > 1
             xhist  = res[2]
         end
-        contour_plot(xhist, simple5)
+        contour_plot(xhist, probname, contour_plot)
     end
 
     return scores, nevals, optima
 end
-
-
-
-
-
-# println(curr_opt)
-# 
-# println(curr_opt)
-
-
-# dev_main("simple1", 1, optimize)

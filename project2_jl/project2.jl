@@ -7,6 +7,4 @@
 #TODO include just the optimize funtion or just copy and paste it over
 include("run.jl")
 
-
-
 main("simple1", 1, optimize)
