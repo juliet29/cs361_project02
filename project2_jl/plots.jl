@@ -14,7 +14,7 @@ function plot_constraint(c, constraint_num)
     c1 = reshape(c1, s1, s1)';
     c1_filt = ifelse.(c1 .< 0, c1, 0);
     # println("c1_filt $c1_filt")
-    contour!(xr, yr, c1_filt, xlims=(-3,3), ylims=(-3,3),aspectratio=:equal, colorbar_entry=false, fillalpha=0.3, linecolor=:white, linewidth=7, levels=40)
+    contour!(xr, yr, c1_filt, xlims=(-3,3), ylims=(-3,3),aspectratio=:equal, colorbar_entry=false, fillalpha=0.5, linecolor=cgrad(:greys), linewidth=7, levels=40)
 end
 
 function make_contour_plot(probname)
