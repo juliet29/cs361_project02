@@ -21,10 +21,10 @@ Returns:
 function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
     if prob == "simple1"
         step_size = 0.01
-        xhist, fhist = bad_optimizer(f, g, c, x0, n_eval_allowed, step_size)
+        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed)
     elseif prob == "simple2"
         step_size = 0.01
-        xhist, fhist =bad_optimizer(f, g, c, x0, n_eval_allowed, step_size)
+        xhist, fhist, method = penalty_opt(f, g, c, x0, n_eval_allowed)
     elseif prob == "simple3"
         step_size = 0.01
         xhist, fhist = bad_optimizer(f, g, c, x0, n_eval_allowed, step_size)
@@ -36,7 +36,7 @@ function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
     x_best = xhist[argmin(fhist)]
     
     if dev == true
-        return (x_best, xhist, fhist) 
+        return (x_best, xhist, fhist, method, x0) 
     else
         return (x_best)
     end
@@ -75,10 +75,10 @@ function dev_main(probname::String, repeat::Int, opt_func, seed = 42)
         # plotting
         if probname == "simple1" || probname == "simple2"
             if length(res) > 1
-                xhist, fhist  = res[2:3]
-                update_contour_plot(xhist, contour_plot, probname)
-                update_convergence_plot(xhist, fhist, converg_plot, probname)
-                update_violation_plot(xhist, vio_plot, probname)
+                xhist, fhist, method, x0  = res[2:5]
+                update_contour_plot(x0, xhist, contour_plot, probname, method)
+                update_convergence_plot(xhist, fhist, converg_plot, probname, method)
+                update_violation_plot(xhist, vio_plot, probname, method)
             end
         end
         
