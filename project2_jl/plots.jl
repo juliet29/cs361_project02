@@ -20,7 +20,7 @@ function plot_constraint(xr, yr, c, constraint_num)
 end
 
 function make_contour_plot(probname)
-    println("making a contour plot")
+    # println("making a contour plot")
     # visualize function problem
     prob = PROBS[probname]
 
@@ -41,11 +41,11 @@ function make_contour_plot(probname)
 end
 
 function update_contour_plot(x0, xhist, c_plot, probname, method)
-    println("updating contour plot")
+    # println("updating contour plot")
     name = "contour_$(probname)_$method"
 
     # see start point given by main
-    print("x0 $x0")
+    # print("x0 $x0")
     plot!(c_plot, [x0[1]], [x0[2]], 
     linewidth=3, linestyle = :solid,
     markershape= :circle, markercolor=:red, markersize=15,
@@ -62,7 +62,7 @@ function update_contour_plot(x0, xhist, c_plot, probname, method)
 
     plot!(c_plot, x1, x2, 
     linewidth=3, linestyle = :solid,
-    title=name
+    title=name, leg=false
     )
     
     savefig("figures/$name.png")

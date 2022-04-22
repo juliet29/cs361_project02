@@ -47,7 +47,7 @@ function hook_jeeves(;f, x, α, ϵ, γ=0.5 )
                 
                 # println("basis is $basis_vector, x is $x′, y is $y′, n is $i , α is $α")
                 if y′ < y_best
-                    println("improvement! y is $y")
+                    # println("improvement! y is $y")
                     x_best, y_best, improved = x′, y′, true
                 end
                 push!(xhist, x_best)
@@ -62,7 +62,7 @@ function hook_jeeves(;f, x, α, ϵ, γ=0.5 )
         if !improved
             α *= γ
 
-        println("no improvement! α is $α")
+        # println("no improvement! α is $α")
         end
     end
 
@@ -93,7 +93,7 @@ function direct_penalty_opt(f, g, c, x0, n_eval_allowed)
         xhist = xhisto
         fhist = fhisto
 
-        println("in hook jeeves, x is $xnext")
+        # println("in hook jeeves, x is $xnext")
 
         
         converged = check_convergence(fhist)
@@ -146,10 +146,10 @@ function check_convergence(arr)
         total_diff += diff
     end
 
-    println("total dif $total_diff")
+    # println("total dif $total_diff")
 
     if total_diff < 1
-        println("convergence!")
+        # println("convergence!")
         return true
     end
     
