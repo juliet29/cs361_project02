@@ -1,8 +1,6 @@
 include("helpers.jl")
 using LinearAlgebra
 
-# problem 1 focus, 2 inequality constraints
-
 # Gradient Descent Methods -----------------------------------------
 
 abstract type DescentMethod end
@@ -16,9 +14,6 @@ function stepGrad!(M::GradientDescent, ∇f, x)
     α, g = M.α, ∇f(x)
     g_to_norm = g[1]^2 + g[2]^2
     g_norm = g/g_to_norm
-    # println("g $g")
-    # println("g_to_norm $g_to_norm")
-    # println("g_norm $g_norm")
     return x - α*g_norm
 end
 
@@ -40,14 +35,10 @@ function hook_jeeves(;f, x, α, ϵ, γ=0.5 )
         x_best, y_best = x, y 
         for i in 1:n
             for sgn in (-1,1)
-                # TODO write basis function 
                 basis_vector = sgn*basis(i,n)
                 x′ = x + α*basis_vector
                 y′ = f(x′)
-                
-                # println("basis is $basis_vector, x is $x′, y is $y′, n is $i , α is $α")
                 if y′ < y_best
-                    # println("improvement! y is $y")
                     x_best, y_best, improved = x′, y′, true
                 end
                 push!(xhist, x_best)
@@ -62,11 +53,9 @@ function hook_jeeves(;f, x, α, ϵ, γ=0.5 )
         if !improved
             α *= γ
 
-        # println("no improvement! α is $α")
         end
     end
 
-    # println("xhist $xhist \n, fhist $fhist")
 
     return x, xhist, fhist
     
@@ -74,8 +63,6 @@ end
 
 
 # Optimizers -----------------------------------------
-
-# TODO
 mutable struct Direct_Hparams
     α
     ϵ
@@ -86,12 +73,9 @@ function direct_penalty_opt(f, g, c, x0, n_eval_allowed, hparams::Direct_Hparams
     method = "direct_pmix_converge10"
     ρ1 = 100
     ρ2 = 100
-    γ = 2
 
     xhist = [x0]
     fhist = [f(x0)]
-
-    # println("$(hparams.α), $(hparams.ϵ), $(hparams.γ) \n" )
 
     for n in 1:n_eval_allowed
         fobj = x -> f(x) + p_mix(c, x, ρ1, ρ2)
@@ -107,7 +91,6 @@ function direct_penalty_opt(f, g, c, x0, n_eval_allowed, hparams::Direct_Hparams
         if converged == true
             c_eval = p_count(c, x)
             if c_eval <= 0
-                # println("converged and in contraint, $c_eval")
                 break
             end
         elseif abs(xnext[1]) > 5 || abs(xnext[2]) > 5
@@ -117,13 +100,9 @@ function direct_penalty_opt(f, g, c, x0, n_eval_allowed, hparams::Direct_Hparams
 
     end
 
-    # println("hook jeeves xhist $xhist \n, fhist $fhist")
-
     return xhist, fhist, method
 
 end
-
-# TODO convergence constraint
 
 # Penalties -----------------------------------------
 
@@ -148,7 +127,6 @@ function p_mix(c, x, ρ1, ρ2)
     for i in c_eval
         count_i = i > 0 ? 1 : 0
         quad_i = max(i, 0)^2
-        # println("i $i, vio $vio")
         count += count_i
         quad += quad_i
     end
@@ -157,10 +135,9 @@ function p_mix(c, x, ρ1, ρ2)
     
 end
 
-# Terminators 
+# Terminators  -----------------------------------------
 
 function check_convergence(arr)
-    # println("checking conv $arr \n")
     len_arr = length(arr)
     check_length = Int(round(len_arr/2))
     total_diff = 0
@@ -169,10 +146,8 @@ function check_convergence(arr)
         total_diff += diff
     end
 
-    # println("total dif $total_diff")
-
     if total_diff < 0.1
-        # println("convergence! \n")
+        # converged
         return true
     end
     

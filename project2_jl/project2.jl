@@ -25,10 +25,8 @@ Returns:
 
 
 function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
-    # println("starting opt!")
     if prob == "simple1"
         h = Direct_Hparams(0.1, 0.01, 0.5)
-        step_size = 0.01
         xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
     elseif prob == "simple2"
         h = Direct_Hparams(10, 0.01, 0.5)
@@ -50,4 +48,4 @@ function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
     end
 end
 
-main("simple1", 1, optimize)
+# main("simple1", 1, optimize)
