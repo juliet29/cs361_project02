@@ -21,11 +21,12 @@ Returns:
 function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
     # println("starting opt!")
     if prob == "simple1"
+        h = Direct_Hparams(0.1, 0.01, 0.5)
         step_size = 0.01
-        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed)
+        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
     elseif prob == "simple2"
-        step_size = 0.01
-        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed)
+        h = Direct_Hparams(10, 0.01, 0.5)
+        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
     elseif prob == "simple3"
         step_size = 0.01
         xhist, fhist = bad_optimizer(f, g, c, x0, n_eval_allowed, step_size)

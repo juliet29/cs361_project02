@@ -75,7 +75,14 @@ end
 
 # Optimizers -----------------------------------------
 
-function direct_penalty_opt(f, g, c, x0, n_eval_allowed)
+# TODO
+mutable struct Direct_Hparams
+    α
+    ϵ
+    γ
+end
+
+function direct_penalty_opt(f, g, c, x0, n_eval_allowed, hparams::Direct_Hparams)
     method = "direct_pmix_converge10"
     ρ1 = 100
     ρ2 = 100
@@ -84,9 +91,12 @@ function direct_penalty_opt(f, g, c, x0, n_eval_allowed)
     xhist = [x0]
     fhist = [f(x0)]
 
-    for n in 1:10
+    # println("$(hparams.α), $(hparams.ϵ), $(hparams.γ) \n" )
+
+    for n in 1:n_eval_allowed
         fobj = x -> f(x) + p_mix(c, x, ρ1, ρ2)
-        xnext, xhisto, fhisto = hook_jeeves(f=fobj, x=xhist[end], α=0.1, ϵ=0.01, γ=0.5 )
+        # xnext, xhisto, fhisto = hook_jeeves(f=fobj, x=xhist[end], α=0.1, ϵ=0.01, γ=0.5 )
+        xnext, xhisto, fhisto = hook_jeeves(f=fobj, x=xhist[end], α=hparams.α, ϵ=hparams.ϵ, γ=hparams.γ)
 
         xhist = xhisto
         fhist = fhisto
@@ -99,7 +109,7 @@ function direct_penalty_opt(f, g, c, x0, n_eval_allowed)
         if converged == true
             c_eval = p_count(c, x)
             if c_eval <= 0
-                println("converged and in contraint, $c_eval")
+                # println("converged and in contraint, $c_eval")
                 break
             end
         elseif abs(xnext[1]) > 5 || abs(xnext[2]) > 5

@@ -44,21 +44,29 @@ function update_contour_plot(x0, xhist, c_plot, probname, method)
     # println("updating contour plot")
     name = "contour_$(probname)_$method"
 
-    # see start point given by main
+    # see start point given by main -> red
     plot!(c_plot, [x0[1]], [x0[2]], 
     linewidth=3, linestyle = :solid,
-    markershape= :circle, markercolor=:red, markersize=5,
+    markershape= :circle, markercolor=:red, markersize=4,
     label="x0")
 
     # visualize progress
     x1 = [xhist[i][1] for i = 1:length(xhist)]
     x2 = [xhist[i][2] for i = 1:length(xhist)]
 
-    # first point from algo 
+    # first point from algo  -> pubk 
     plot!(c_plot, [x1[1]], [x2[1]], 
     linewidth=3, linestyle = :solid,
     markershape= :circle, markercolor=:pink, markersize=2,
     label="x1")
+
+    # last point from algo 
+    plot!(c_plot, [x1[end]], [x2[end]], 
+    linewidth=3, linestyle = :solid,
+    markershape= :circle, markercolor=:blue, markersize=7,
+    label="x1")
+
+
 
     plot!(c_plot, x1, x2, 
     linewidth=3, linestyle = :solid,

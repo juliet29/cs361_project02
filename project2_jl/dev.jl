@@ -1,2 +1,2 @@
 include("run.jl") 
-dev_main("simple2", 20, optimize)
+dev_main("simple1", 20, optimize)
