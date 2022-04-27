@@ -2,49 +2,6 @@ include("helpers.jl")
 include("work.jl")
 include("plots.jl")
 
-"""
-    optimize(f, g, c, x0, n, prob)
-
-Arguments:
-    - `f`: Function to be optimized
-    - `g`: Gradient function for `f`
-    - `c`: Constraint function for 'f'
-    - `x0`: (Vector) Initial position to start from
-    - `n`: (Int) Number of evaluations allowed. Remember `g` costs twice of `f`
-    - `prob`: (String) Name of the problem. So you can use a different strategy for each problem. E.g. "simple1", "secret2", etc.
-
-Returns:
-    - The location of the minimum
-"""
-
-
-function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
-    # println("starting opt!")
-    if prob == "simple1"
-        h = Direct_Hparams(0.1, 0.01, 0.5)
-        step_size = 0.01
-        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
-    elseif prob == "simple2"
-        h = Direct_Hparams(10, 0.01, 0.5)
-        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
-    elseif prob == "simple3"
-        h = Direct_Hparams(10, 0.01, 0.5)
-        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
-    else
-        step_size = 0.01
-        xhist, fhist = bad_optimizer(f, g, c, x0, n_eval_allowed, step_size)
-    end 
-    
-    x_best = xhist[argmin(fhist)]
-    
-    if dev == true
-        return (x_best, xhist, fhist, method, x0) 
-    else
-        return (x_best)
-    end
-end
-
-
 #TODO need to store xhist and other things in a globar var
 
 function dev_main(probname::String, repeat::Int, opt_func, seed = 42)

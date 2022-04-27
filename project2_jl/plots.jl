@@ -1,5 +1,8 @@
 include("helpers.jl")
 
+# import Pkg; 
+# Pkg.add("Plots")
+
 using Plots
 
 function plot_constraint(xr, yr, c, constraint_num)
@@ -54,20 +57,19 @@ function update_contour_plot(x0, xhist, c_plot, probname, method)
     x1 = [xhist[i][1] for i = 1:length(xhist)]
     x2 = [xhist[i][2] for i = 1:length(xhist)]
 
-    # first point from algo  -> pubk 
+    # first point from algo  -> pinkk 
     plot!(c_plot, [x1[1]], [x2[1]], 
     linewidth=3, linestyle = :solid,
     markershape= :circle, markercolor=:pink, markersize=2,
     label="x1")
 
-    # last point from algo 
+    # last point from algo -> blue
     plot!(c_plot, [x1[end]], [x2[end]], 
     linewidth=3, linestyle = :solid,
     markershape= :circle, markercolor=:blue, markersize=7,
     label="x1")
 
-
-
+    # intermediate points from algo 
     plot!(c_plot, x1, x2, 
     linewidth=3, linestyle = :solid,
     title=name, leg=false
