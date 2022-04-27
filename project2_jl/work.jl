@@ -77,8 +77,8 @@ end
 
 function direct_penalty_opt(f, g, c, x0, n_eval_allowed)
     method = "direct_pmix_converge10"
-    ρ1 = 1
-    ρ2 = 5
+    ρ1 = 100
+    ρ2 = 100
     γ = 2
 
     xhist = [x0]
@@ -96,9 +96,12 @@ function direct_penalty_opt(f, g, c, x0, n_eval_allowed)
         
         converged = check_convergence(fhist)
         if converged == true
-            println("converged")
-            break
+            c_eval = c(x)
+            if c_eval <= 0
+                println("converged and in contraint, $c_eval")
+                break
         elseif abs(xnext[1]) > 5 || abs(xnext[2]) > 5
+            println("out of bounds")
             break
         end
         # TODO add criteria that requires in constraint region 
@@ -140,6 +143,7 @@ end
 # Terminators 
 
 function check_convergence(arr)
+    # println("checking conv $arr \n")
     len_arr = length(arr)
     check_length = Int(round(len_arr/2))
     total_diff = 0
@@ -151,7 +155,7 @@ function check_convergence(arr)
     # println("total dif $total_diff")
 
     if total_diff < 0.1
-        # println("convergence!")
+        # println("convergence! \n")
         return true
     end
     
