@@ -90,16 +90,18 @@ function direct_penalty_opt(f, g, c, x0, n_eval_allowed)
 
         xhist = xhisto
         fhist = fhisto
+        x = xhist[end]
 
         # println("in hook jeeves, x is $xnext")
 
         
         converged = check_convergence(fhist)
         if converged == true
-            c_eval = c(x)
+            c_eval = p_count(c, x)
             if c_eval <= 0
                 println("converged and in contraint, $c_eval")
                 break
+            end
         elseif abs(xnext[1]) > 5 || abs(xnext[2]) > 5
             println("out of bounds")
             break
@@ -122,6 +124,19 @@ end
 # TODO convergence constraint
 
 # Penalties -----------------------------------------
+
+function p_count(c, x)
+    # assuming all are inequality constraints for now 
+    count = 0
+    c_eval = c(x)
+    for i in c_eval
+        count_i = i > 0 ? 1 : 0
+        count += count_i
+    end
+
+    return count
+    
+end
 
 function p_mix(c, x, ρ1, ρ2)
     # assuming all are inequality constraints for now 
