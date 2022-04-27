@@ -102,9 +102,7 @@ function direct_penalty_opt(f, g, c, x0, n_eval_allowed, hparams::Direct_Hparams
         fhist = fhisto
         x = xhist[end]
 
-        # println("in hook jeeves, x is $xnext")
-
-        
+        # check for convergence, constraints, and bounds 
         converged = check_convergence(fhist)
         if converged == true
             c_eval = p_count(c, x)
@@ -116,13 +114,7 @@ function direct_penalty_opt(f, g, c, x0, n_eval_allowed, hparams::Direct_Hparams
             println("out of bounds")
             break
         end
-        # TODO add criteria that requires in constraint region 
 
-        # push!(xhist, xnext)
-        
-        # push!(xhist, xnext)
-        # push!(fhist, f(xnext))
-        # ρ *= γ
     end
 
     # println("hook jeeves xhist $xhist \n, fhist $fhist")

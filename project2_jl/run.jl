@@ -28,8 +28,8 @@ function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
         h = Direct_Hparams(10, 0.01, 0.5)
         xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
     elseif prob == "simple3"
-        step_size = 0.01
-        xhist, fhist = bad_optimizer(f, g, c, x0, n_eval_allowed, step_size)
+        h = Direct_Hparams(10, 0.01, 0.5)
+        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
     else
         step_size = 0.01
         xhist, fhist = bad_optimizer(f, g, c, x0, n_eval_allowed, step_size)
@@ -56,9 +56,11 @@ function dev_main(probname::String, repeat::Int, opt_func, seed = 42)
     optima = Vector{typeof(x0())}(undef, repeat)
 
     # initialize plots 
-    contour_plot = make_contour_plot(probname)
-    converg_plot = make_convergence_plot()
-    vio_plot = make_violation_plot()
+    if probname == "simple1" || probname == "simple2"
+        contour_plot = make_contour_plot(probname)
+        converg_plot = make_convergence_plot()
+        vio_plot = make_violation_plot()
+    end
 
 
     # Repeat the optimization with a different initialization
