@@ -19,7 +19,7 @@ Returns:
 
 
 function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
-    println("starting opt!")
+    # println("starting opt!")
     if prob == "simple1"
         step_size = 0.01
         xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed)
@@ -62,21 +62,21 @@ function dev_main(probname::String, repeat::Int, opt_func, seed = 42)
 
     # Repeat the optimization with a different initialization
     for i in 1:repeat
-        print("iteration $i \n")
+        # print("iteration $i \n")
         empty!(COUNTERS) # fresh eval-count each time
         Random.seed!(seed + i)
 
         # in development 
         dev = true
 
-        print("about to optimize $i \n")
+        # print("about to optimize $i \n")
         # optimize
-        println("opt_func type, $(typeof(opt_func))")
+        # println("opt_func type, $(typeof(opt_func))")
         res = opt_func(f, g, c, x0(), n, probname, dev)
-        print("got res $i")
-        println("$i length of res $(length(res))  \n")
+        # print("got res $i")
+        # println("$i length of res $(length(res))  \n")
         optima = res[1] 
-        println("optima $optima \n")
+        # println("optima $optima \n")
          
         
         nevals[i], scores[i] = get_score(f, g, c, optima, n)
@@ -90,7 +90,7 @@ function dev_main(probname::String, repeat::Int, opt_func, seed = 42)
                 update_contour_plot(xStart, xhist, contour_plot, probname, method)
                 update_convergence_plot(xhist, fhist, converg_plot, probname, method)
                 update_violation_plot(xhist, vio_plot, probname, method)
-                println("plotting \n")
+                # println("plotting \n")
             end
         end
         

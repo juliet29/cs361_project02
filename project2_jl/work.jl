@@ -76,18 +76,16 @@ end
 # Optimizers -----------------------------------------
 
 function direct_penalty_opt(f, g, c, x0, n_eval_allowed)
-    method = "direct_pmix_true"
+    method = "direct_pmix_converge10"
     ρ1 = 1
-    ρ2 = 0.001
+    ρ2 = 5
     γ = 2
 
     xhist = [x0]
     fhist = [f(x0)]
-    xhistr = []
-    fhistr = []
 
     for n in 1:10
-        fobj = x -> f(x) + p_mix(c, x)
+        fobj = x -> f(x) + p_mix(c, x, ρ1, ρ2)
         xnext, xhisto, fhisto = hook_jeeves(f=fobj, x=xhist[end], α=0.1, ϵ=0.01, γ=0.5 )
 
         xhist = xhisto
@@ -98,10 +96,12 @@ function direct_penalty_opt(f, g, c, x0, n_eval_allowed)
         
         converged = check_convergence(fhist)
         if converged == true
+            println("converged")
             break
         elseif abs(xnext[1]) > 5 || abs(xnext[2]) > 5
             break
         end
+        # TODO add criteria that requires in constraint region 
 
         # push!(xhist, xnext)
         
@@ -120,7 +120,7 @@ end
 
 # Penalties -----------------------------------------
 
-function p_mix(c, x)
+function p_mix(c, x, ρ1, ρ2)
     # assuming all are inequality constraints for now 
     count = 0
     quad = 0
@@ -133,22 +133,24 @@ function p_mix(c, x)
         quad += quad_i
     end
 
-    return count + quad
+    return ρ1* count + ρ2*quad
     
 end
 
 # Terminators 
 
 function check_convergence(arr)
+    len_arr = length(arr)
+    check_length = Int(round(len_arr/2))
     total_diff = 0
-    for i = 1:5
-        diff = arr[end] - arr[end-1]
+    for i = 1:check_length
+        diff = arr[end] - arr[end-i]
         total_diff += diff
     end
 
     # println("total dif $total_diff")
 
-    if total_diff < 1
+    if total_diff < 0.1
         # println("convergence!")
         return true
     end
