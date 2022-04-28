@@ -26,7 +26,7 @@ function basis(i, n)
     return mat[i, :]
 end
 
-function hook_jeeves(;f, x, α, ϵ, γ=0.5 )
+function hook_jeeves(;f, x, α, ϵ, γ, g, c, n_evals_allowed, evals_break=100 )
     y, n = f(x), length(x)
     xhist = [x]
     fhist = [y]
@@ -43,9 +43,18 @@ function hook_jeeves(;f, x, α, ϵ, γ=0.5 )
                 end
                 push!(xhist, x_best)
                 push!(fhist, y_best)
-                if  abs(x′[1]) > 5 || abs(x′[2]) > 5
+                
+                # check evals, bounds and break
+                evals_exceeded, n_evals = check_n_evals(f,g,c, n_evals_allowed, evals_break)
+                println("evals in hook jeeves $n_evals \n")
+                if evals_exceeded
+                    println("evals_exceeded in hook jeeves \n")
+                    break
+                elseif abs(x′[1]) > 5 || abs(x′[2]) > 5 # prev 5
+                    println("out of bounds in hook_jeeves \n")
                     break
                 end
+
             end
         end
         x, y = x_best, y_best
@@ -69,7 +78,7 @@ mutable struct Direct_Hparams
     γ
 end
 
-function direct_penalty_opt(f, g, c, x0, n_eval_allowed, hparams::Direct_Hparams)
+function direct_penalty_opt(f, g, c, x0, n_evals_allowed, hparams::Direct_Hparams, evals_break=100)
     method = "direct_pmix_converge10"
     ρ1 = 100
     ρ2 = 100
@@ -77,10 +86,12 @@ function direct_penalty_opt(f, g, c, x0, n_eval_allowed, hparams::Direct_Hparams
     xhist = [x0]
     fhist = [f(x0)]
 
-    for n in 1:n_eval_allowed
+    n_evals = count(f, g) + count(c)
+
+    while n_evals < n_evals_allowed - evals_break
+        print("evals to start $n_evals")
         fobj = x -> f(x) + p_mix(c, x, ρ1, ρ2)
-        # xnext, xhisto, fhisto = hook_jeeves(f=fobj, x=xhist[end], α=0.1, ϵ=0.01, γ=0.5 )
-        xnext, xhisto, fhisto = hook_jeeves(f=fobj, x=xhist[end], α=hparams.α, ϵ=hparams.ϵ, γ=hparams.γ)
+        xnext, xhisto, fhisto = hook_jeeves(f=fobj, x=xhist[end], α=hparams.α, ϵ=hparams.ϵ, γ=hparams.γ, g=g, c=c, n_evals_allowed=n_evals_allowed, evals_break=evals_break)
 
         xhist = xhisto
         fhist = fhisto
@@ -88,15 +99,21 @@ function direct_penalty_opt(f, g, c, x0, n_eval_allowed, hparams::Direct_Hparams
 
         # check for convergence, constraints, and bounds 
         converged = check_convergence(fhist)
+        evals_exceeded, n_evals = check_n_evals(f,g,c, n_evals_allowed, evals_break)
+        println("n_evals = $n_evals in optimizer")
         if converged == true
             c_eval = p_count(c, x)
             if c_eval <= 0
                 break
             end
         elseif abs(xnext[1]) > 5 || abs(xnext[2]) > 5
-            println("out of bounds")
+            # println("out of bounds in optimizer \n")
+            break
+        elseif evals_exceeded == true
+            # println("evals exceeded in optimizer \n")
             break
         end
+        
 
     end
 
@@ -149,6 +166,18 @@ function check_convergence(arr)
     if total_diff < 0.1
         # converged
         return true
+    end
+end
+
+
+function check_n_evals(f,g,c, n_evals_allowed, ϵ=100)
+    n_evals = count(f, g) + count(c)
+    # n_evals = 2
+    if n_evals > n_evals_allowed - ϵ
+        # println("number of evaluations exceeded")
+        return true, n_evals
+    else
+        return false, n_evals
     end
     
 end
