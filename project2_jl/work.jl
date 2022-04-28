@@ -46,12 +46,12 @@ function hook_jeeves(;f, x, α, ϵ, γ, g, c, n_evals_allowed, evals_break=100 )
                 
                 # check evals, bounds and break
                 evals_exceeded, n_evals = check_n_evals(f,g,c, n_evals_allowed, evals_break)
-                println("evals in hook jeeves $n_evals \n")
+                # println("evals in hook jeeves $n_evals \n")
                 if evals_exceeded
-                    println("evals_exceeded in hook jeeves \n")
+                    # println("evals_exceeded in hook jeeves \n")
                     break
                 elseif abs(x′[1]) > 5 || abs(x′[2]) > 5 # prev 5
-                    println("out of bounds in hook_jeeves \n")
+                    # println("out of bounds in hook_jeeves \n")
                     break
                 end
 
@@ -89,7 +89,7 @@ function direct_penalty_opt(f, g, c, x0, n_evals_allowed, hparams::Direct_Hparam
     n_evals = count(f, g) + count(c)
 
     while n_evals < n_evals_allowed - evals_break
-        print("evals to start $n_evals")
+        # print("evals to start $n_evals")
         fobj = x -> f(x) + p_mix(c, x, ρ1, ρ2)
         xnext, xhisto, fhisto = hook_jeeves(f=fobj, x=xhist[end], α=hparams.α, ϵ=hparams.ϵ, γ=hparams.γ, g=g, c=c, n_evals_allowed=n_evals_allowed, evals_break=evals_break)
 
@@ -100,7 +100,7 @@ function direct_penalty_opt(f, g, c, x0, n_evals_allowed, hparams::Direct_Hparam
         # check for convergence, constraints, and bounds 
         converged = check_convergence(fhist)
         evals_exceeded, n_evals = check_n_evals(f,g,c, n_evals_allowed, evals_break)
-        println("n_evals = $n_evals in optimizer")
+        # println("n_evals = $n_evals in optimizer")
         if converged == true
             c_eval = p_count(c, x)
             if c_eval <= 0

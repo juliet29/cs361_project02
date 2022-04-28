@@ -35,8 +35,8 @@ function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
         h = Direct_Hparams(0.1, 0.01, 0.5)
         xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
     else
-        h = Direct_Hparams(100, 10, 0.5)
-        evals_break = 500
+        h = Direct_Hparams(0.05, 0.01, 0.5)
+        evals_break = 100
         xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h, evals_break)
     end 
     

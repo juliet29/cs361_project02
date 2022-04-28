@@ -4,7 +4,7 @@ lang="$(cat ./language.txt)"
 
 if [[ "${lang}" == *"julia"* ]]
 then
-    zip -r project2.zip language.txt project2_jl/*.jl 
+    zip -r project2.zip language.txt project2_jl/*.jl -x "project2_jl/run.jl" -x "project2_jl/dev.jl" -x "project2_jl/plots.jl" -x "project2_jl/archives.jl"
     
 elif [[ "${lang}" == *"python"* ]]
 then

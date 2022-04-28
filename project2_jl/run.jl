@@ -1,5 +1,4 @@
-include("../project2_jl/helpers.jl")
-include("../project2_jl/work.jl")
+include("work.jl")
 include("plots.jl")
 
 function dev_main(probname::String, repeat::Int, opt_func, seed = 42)
