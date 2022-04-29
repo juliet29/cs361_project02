@@ -1,11 +1,9 @@
 include("helpers.jl")
 
-# import Pkg; 
-# Pkg.add("Plots")
-
 using Plots
 
 function plot_constraint(xr, yr, c, constraint_num)
+    # recreate a matrix with just one of the constraints 
     c1 = []
     # square matrix, so s1 and s2 will be the same
     s1 = size(c, 1)
@@ -21,6 +19,7 @@ function plot_constraint(xr, yr, c, constraint_num)
     # println("c1_filt $c1_filt")
     contour!(xr, yr, c1_filt, xlims=(-3,3), ylims=(-3,3),aspectratio=:equal, colorbar_entry=false, fillalpha=0.5, linecolor=cgrad(:greys), linewidth=7, levels=40)
 end
+
 
 function make_contour_plot(probname)
     # println("making a contour plot")
@@ -40,7 +39,6 @@ function make_contour_plot(probname)
     end
 
     return c_plot
-
 end
 
 function update_contour_plot(x0, xhist, c_plot, probname, method)

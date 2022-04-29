@@ -10,7 +10,7 @@ function dev_main(probname::String, repeat::Int, opt_func, seed = 42)
     optima = Vector{typeof(x0())}(undef, repeat)
 
     # initialize plots 
-    if probname == "simple1" || probname == "simple2"
+    if probname == "simple1" || probname == "simple2" || probname == "secret0"
         contour_plot = make_contour_plot(probname)
         converg_plot = make_convergence_plot()
         vio_plot = make_violation_plot()
@@ -32,7 +32,7 @@ function dev_main(probname::String, repeat::Int, opt_func, seed = 42)
 
         
         # plotting
-        if probname == "simple1" || probname == "simple2"
+        if probname == "simple1" || probname == "simple2" || probname == "secret0"
             if length(res) > 1
                 xhist, fhist, method, xStart  = res[2:5]
                 update_contour_plot(xStart, xhist, contour_plot, probname, method)
@@ -46,3 +46,4 @@ function dev_main(probname::String, repeat::Int, opt_func, seed = 42)
 
     return scores, nevals, optima
 end
+

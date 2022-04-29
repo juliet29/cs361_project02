@@ -54,3 +54,5 @@ function simple3_init()
     a = -2.0 .* [1.0, -1.0, 0.0]
     return rand(3) .* (b-a) + a
 end
+
+

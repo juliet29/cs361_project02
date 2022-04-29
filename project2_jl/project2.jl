@@ -25,6 +25,8 @@ Returns:
 
 
 function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
+    evals_break = 100
+    p = Penalty_Params(100, 100)
     if prob == "simple1"
         h = Direct_Hparams(0.1, 0.01, 0.5)
         xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
@@ -34,10 +36,14 @@ function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
     elseif prob == "simple3"
         h = Direct_Hparams(0.1, 0.01, 0.5)
         xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
+    elseif prob == "secret_0"
+        h = Direct_Hparams(10, 0.01, 0.5)
+        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
     else
         h = Direct_Hparams(0.05, 0.01, 0.5)
+        p = Penalty_Params(10e6, 10e6)
         evals_break = 100
-        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h, evals_break)
+        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h, evals_break, p, "not_hj")
     end 
     
     x_best = xhist[argmin(fhist)]

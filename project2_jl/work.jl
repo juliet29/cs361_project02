@@ -18,7 +18,7 @@ function stepGrad!(M::GradientDescent, ∇f, x)
 end
 
 
-# Direct Methods -----------------------------------------
+# Hook Jeeves -----------------------------------------
 
 function basis(i, n)
     # return the ith row of a nxn identity matrix
@@ -70,6 +70,32 @@ function hook_jeeves(;f, x, α, ϵ, γ, g, c, n_evals_allowed, evals_break=100 )
     
 end
 
+# Generalized Pattern Search ------------------------------
+function gp_search(;f, x, α, ϵ, γ, D)
+    y, n = f(x), length(x)
+    xhist = [x]
+    fhist = [y]
+    while α > ϵ
+        improved = false
+        for (i,d) in enumerate(D)
+            x′ = x +  α*d
+            y′ = f(x′)
+            if y′ < y
+                x, y, improved =  x′, y′, true
+                D = pushfirst!(deleteat!(D, i), d)
+                push!(xhist, x)
+                push!(fhist, y)
+                break
+            end
+            
+        end
+        if !improved
+            α*= γ
+        end
+    end
+   return x, xhist, fhist
+end
+
 
 # Optimizers -----------------------------------------
 mutable struct Direct_Hparams
@@ -78,10 +104,22 @@ mutable struct Direct_Hparams
     γ
 end
 
-function direct_penalty_opt(f, g, c, x0, n_evals_allowed, hparams::Direct_Hparams, evals_break=100)
+mutable struct Penalty_Params
+    ρ1
+    ρ2
+end
+
+
+default_pparams = Penalty_Params(100, 100)
+
+function direct_penalty_opt(f, g, c, x0, n_evals_allowed, hparams::Direct_Hparams, evals_break=100, pparams::Penalty_Params=default_pparams, opt_method="hook_jeeves")
     method = "direct_pmix_converge10"
-    ρ1 = 100
-    ρ2 = 100
+    if opt_method != "hook_jeeves"
+        method = "gps"
+    end
+
+    ρ1 = pparams.ρ1
+    ρ2 = pparams.ρ1
 
     xhist = [x0]
     fhist = [f(x0)]
@@ -92,6 +130,11 @@ function direct_penalty_opt(f, g, c, x0, n_evals_allowed, hparams::Direct_Hparam
         # print("evals to start $n_evals")
         fobj = x -> f(x) + p_mix(c, x, ρ1, ρ2)
         xnext, xhisto, fhisto = hook_jeeves(f=fobj, x=xhist[end], α=hparams.α, ϵ=hparams.ϵ, γ=hparams.γ, g=g, c=c, n_evals_allowed=n_evals_allowed, evals_break=evals_break)
+
+        if opt_method != "hook_jeeves"
+            D = [[1, 2],  [3, 5], [-7, -3]]
+            xnext, xhisto, fhisto = gp_search(f=fobj, x=xhist[end], α=hparams.α, ϵ=hparams.ϵ, γ=hparams.γ, D=D)
+        end
 
         xhist = xhisto
         fhist = fhisto
