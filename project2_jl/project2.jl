@@ -7,6 +7,7 @@
 #TODO include just the optimize funtion or just copy and paste it over
 include("helpers.jl")
 include("work.jl")
+include("secret2.jl")
 
 """
     optimize(f, g, c, x0, n, prob)
@@ -22,9 +23,17 @@ Arguments:
 Returns:
     - The location of the minimum
 """
+function span10()
+    # create set of positive spanning vectors 
+    x = randn(10)
+    D = nullspace(x')
+    d = [(D[:, i]) for i=1:2]
+    return d
+end
 
 
 function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
+    # error("hello!")
     evals_break = 100
     p = Penalty_Params(100, 100)
     if prob == "simple1"
@@ -36,12 +45,12 @@ function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
     elseif prob == "simple3"
         h = Direct_Hparams(0.1, 0.01, 0.5)
         xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
-    elseif prob == "secret0"
-        h = Direct_Hparams(10, 0.01, 0.5)
-        p = Penalty_Params(10e6, 10e6)
-        evals_break = 100
-        D = [[1,0],  [1,2], [-1,-1]]
-        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h, evals_break, p, "not_hj", D)
+    # elseif prob == "secret0"
+    #     h = Direct_Hparams(10, 0.01, 0.5)
+    #     p = Penalty_Params(10e6, 10e6)
+    #     evals_break = 100
+    #     D = span10()
+    #     xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h, evals_break, p, "not_hj", D)
     elseif prob == "secret1"
         h = Direct_Hparams(10, 0.01, 0.5)
         p = Penalty_Params(10e6, 10e6)
@@ -49,14 +58,11 @@ function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
         D = [[1,0],  [1,2], [-1,-1]]
         xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h, evals_break, p, "not_hj", D)
     elseif prob == "secret2"
-        h = Direct_Hparams(10, 0.01, 0.5)
-        p = Penalty_Params(10e6, 10e6)
-        evals_break = 500
-        # create set of positive spanning vectors 
-        x = abs.(randn(10))
-        D = nullspace(x')
-        d = [D[:, i] for i=1:size(D,2)]
-        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h, evals_break, p, "not_hj", d)
+        h = Direct_Hparams(100, 0.1, 0.1)
+        p = Penalty_Params(10e11, 10e11)
+        evals_break = 10
+        D = span10()
+        xhist, fhist, method = secret2_opt(f, g, c, x0, n_eval_allowed, h, evals_break, p, D)
     end 
     
     x_best = xhist[argmin(fhist)]

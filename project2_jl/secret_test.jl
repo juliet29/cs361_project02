@@ -25,7 +25,7 @@ end
 end
 
 function secret0_init()
-    b = 2.0 .* [1.0, -1.0]
-    a = -2.0 .* [1.0, -1.0]
-    return rand(2) .* (b-a) + a
+    b = 2.0 .* randn(10)
+    a = -2.0 .* randn(10)
+    return (b-a) + a
 end

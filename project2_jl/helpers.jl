@@ -48,12 +48,12 @@ end
 # simple.jl defines the 3 simple problems. It's included down here rather than at the
 # top because it relies on @counted and COUNTERS to track the evaluation counts.
 include("simple.jl")
-include("secret_test.jl")
+# include("secret_test.jl")
 
 const PROBS = Dict("simple1" => (f=simple1, g=simple1_gradient, c = simple1_constraints, x0=simple1_init, n=2000),
                    "simple2" => (f=simple2, g=simple2_gradient, c = simple2_constraints, x0=simple2_init, n=2000),
                    "simple3" => (f=simple3, g=simple3_gradient, c = simple3_constraints, x0=simple3_init, n=2000),
-                   "secret0" => (f=secret0, g=secret0_gradient, c=secret0_constraints, x0=secret0_init, n=2000)
+                #    "secret0" => (f=secret0, g=secret0_gradient, c=secret0_constraints, x0=secret0_init, n=2000)
                    )
 
 # "secret0" => (f=secret0, g=secret0_gradient, c=secret0_constraints, x0=secret0_init, n=2000)
