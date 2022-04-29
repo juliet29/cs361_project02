@@ -32,18 +32,31 @@ function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
         xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
     elseif prob == "simple2"
         h = Direct_Hparams(10, 0.01, 0.5)
-        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
+        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed,  h) # evals_break, p, "not_hj"
     elseif prob == "simple3"
         h = Direct_Hparams(0.1, 0.01, 0.5)
         xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
-    elseif prob == "secret_0"
+    elseif prob == "secret0"
         h = Direct_Hparams(10, 0.01, 0.5)
-        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
-    else
-        h = Direct_Hparams(0.05, 0.01, 0.5)
         p = Penalty_Params(10e6, 10e6)
         evals_break = 100
-        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h, evals_break, p, "not_hj")
+        D = [[1,0],  [1,2], [-1,-1]]
+        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h, evals_break, p, "not_hj", D)
+    elseif prob == "secret1"
+        h = Direct_Hparams(10, 0.01, 0.5)
+        p = Penalty_Params(10e6, 10e6)
+        evals_break = 100
+        D = [[1,0],  [1,2], [-1,-1]]
+        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h, evals_break, p, "not_hj", D)
+    elseif prob == "secret2"
+        h = Direct_Hparams(10, 0.01, 0.5)
+        p = Penalty_Params(10e6, 10e6)
+        evals_break = 500
+        # create set of positive spanning vectors 
+        x = abs.(randn(10))
+        D = nullspace(x')
+        d = [D[:, i] for i=1:size(D,2)]
+        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h, evals_break, p, "not_hj", d)
     end 
     
     x_best = xhist[argmin(fhist)]

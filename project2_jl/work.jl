@@ -87,12 +87,22 @@ function gp_search(;f, x, α, ϵ, γ, D)
                 push!(fhist, y)
                 break
             end
-            
+            f_evals = count(f)
+            if f_evals > 4000/10 - 200
+                # secret 2 break case
+                break
+            end
         end
         if !improved
             α*= γ
         end
+        f_evals = count(f)
+        if f_evals > 4000/10 - 200
+            # secret 2 break case
+            break
+        end
     end
+
    return x, xhist, fhist
 end
 
@@ -112,7 +122,7 @@ end
 
 default_pparams = Penalty_Params(100, 100)
 
-function direct_penalty_opt(f, g, c, x0, n_evals_allowed, hparams::Direct_Hparams, evals_break=100, pparams::Penalty_Params=default_pparams, opt_method="hook_jeeves")
+function direct_penalty_opt(f, g, c, x0, n_evals_allowed, hparams::Direct_Hparams, evals_break=100, pparams::Penalty_Params=default_pparams, opt_method="hook_jeeves", D=nothing)
     method = "direct_pmix_converge10"
     if opt_method != "hook_jeeves"
         method = "gps"
@@ -125,6 +135,8 @@ function direct_penalty_opt(f, g, c, x0, n_evals_allowed, hparams::Direct_Hparam
     fhist = [f(x0)]
 
     n_evals = count(f, g) + count(c)
+    
+    
 
     while n_evals < n_evals_allowed - evals_break
         # print("evals to start $n_evals")
@@ -132,7 +144,7 @@ function direct_penalty_opt(f, g, c, x0, n_evals_allowed, hparams::Direct_Hparam
         xnext, xhisto, fhisto = hook_jeeves(f=fobj, x=xhist[end], α=hparams.α, ϵ=hparams.ϵ, γ=hparams.γ, g=g, c=c, n_evals_allowed=n_evals_allowed, evals_break=evals_break)
 
         if opt_method != "hook_jeeves"
-            D = [[1, 2],  [3, 5], [-7, -3]]
+            
             xnext, xhisto, fhisto = gp_search(f=fobj, x=xhist[end], α=hparams.α, ϵ=hparams.ϵ, γ=hparams.γ, D=D)
         end
 
@@ -159,6 +171,9 @@ function direct_penalty_opt(f, g, c, x0, n_evals_allowed, hparams::Direct_Hparam
         
 
     end
+    
+
+    # println("n_evals are $n_evals, f_evals are $f_evals")
 
     return xhist, fhist, method
 
