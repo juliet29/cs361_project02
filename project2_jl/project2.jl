@@ -8,6 +8,7 @@
 include("helpers.jl")
 include("work.jl")
 include("secret2.jl")
+include("pop.jl")
 
 """
     optimize(f, g, c, x0, n, prob)
@@ -43,8 +44,13 @@ function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
         h = Direct_Hparams(10, 0.01, 0.5)
         xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed,  h) # evals_break, p, "not_hj"
     elseif prob == "simple3"
-        h = Direct_Hparams(0.1, 0.01, 0.5)
-        xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
+        pop_p = Pop_Params(7, 50, TruncationSelection(2), InterpolationCrossover(0.5), GaussianMutation(0.1))
+        e = EvalCount(n_eval_allowed, evals_break, g, c)
+        xhist, fhist, method = pop_penalty_opt(f, x0, pop_p, e)
+
+        # h = Direct_Hparams(0.1, 0.01, 0.5)
+        # xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h)
+
     # elseif prob == "secret0"
     #     h = Direct_Hparams(10, 0.01, 0.5)
     #     p = Penalty_Params(10e6, 10e6)
@@ -58,11 +64,16 @@ function optimize(f, g, c, x0, n_eval_allowed, prob, dev=false)
         D = [[1,0],  [1,2], [-1,-1]]
         xhist, fhist, method = direct_penalty_opt(f, g, c, x0, n_eval_allowed, h, evals_break, p, "not_hj", D)
     elseif prob == "secret2"
-        h = Direct_Hparams(100, 0.1, 0.1)
-        p = Penalty_Params(10e11, 10e11)
-        evals_break = 10
-        D = span10()
-        xhist, fhist, method = secret2_opt(f, g, c, x0, n_eval_allowed, h, evals_break, p, D)
+        evals_break = 500
+        p = Penalty_Params(10e6, 10e6)
+        pop_p = Pop_Params(13, 100, TruncationSelection(2), InterpolationCrossover(0.80), GaussianMutation(0.09))
+        e = EvalCount(n_eval_allowed, evals_break, g, c)
+        xhist, fhist, method = pop_penalty_opt(f, x0, pop_p, e)
+        # h = Direct_Hparams(100, 0.1, 0.1)
+        # p = Penalty_Params(10e11, 10e11)
+        # evals_break = 10
+        # D = span10()
+        # xhist, fhist, method = secret2_opt(f, g, c, x0, n_eval_allowed, h, evals_break, p, D)
     end 
     
     x_best = xhist[argmin(fhist)]

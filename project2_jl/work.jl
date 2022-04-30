@@ -144,7 +144,6 @@ function direct_penalty_opt(f, g, c, x0, n_evals_allowed, hparams::Direct_Hparam
         xnext, xhisto, fhisto = hook_jeeves(f=fobj, x=xhist[end], α=hparams.α, ϵ=hparams.ϵ, γ=hparams.γ, g=g, c=c, n_evals_allowed=n_evals_allowed, evals_break=evals_break)
 
         if opt_method != "hook_jeeves"
-            
             xnext, xhisto, fhisto = gp_search(f=fobj, x=xhist[end], α=hparams.α, ϵ=hparams.ϵ, γ=hparams.γ, D=D)
         end
 

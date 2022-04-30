@@ -1,4 +1,5 @@
 using Distributions
+include("work.jl")
 
 function f(x::Vector)
     val = 0
@@ -48,47 +49,120 @@ function mutate(M::GaussianMutation, child)
     
 end
 
-function gen_alg(f, pop, k_max, S, C, M)
+# Algorithm -----------------------
+
+struct EvalCount
+    n_evals_allowed
+    evals_break
+    g
+    c
+end
+
+struct Pop_Params
+    m # number of design points per round
+    k_max # number of runs 
+    S::TruncationSelection
+    C::InterpolationCrossover
+    M::GaussianMutation
+end
+
+function gen_alg(f, pop, k_max, S, C, M, e::EvalCount)
     for k in 1:k_max
+        # check if need to break 
+        evals_exceeded, n_evals = check_n_evals(f, e.g, e.c, e.n_evals_allowed, e.evals_break)
+        if evals_exceeded == true
+            error("evals done, breaking $n_evals, k=$k")
+            break
+        end
+
+        # continue 
         pop_scores = f.(pop)
-        println("k $k, pop_scores $pop_scores")
+        min_pop_score = minimum(pop_scores)
+        if min_pop_score < 1
+            break
+        end
+        println("k $k, mean $(round(mean(pop_scores);digits=3)) std $(round(std(pop_scores);digits=3)), evals $n_evals")
+
         parents = select(S, pop_scores )
         children = [crossover(C,pop[p[1]], pop[p[2]]) for p in parents]
         pop .= mutate.(Ref(M), children)
+
+        # if k == k_max -2
+        #     final_scores = f.(pop)
+        #     x_best = pop[argmin(final_scores)]
+        #     y_best = minimum(final_scores)
+        #     error("x_best $(round.(x_best; digits=3)), y_best $(round(y_best; digits=3))")
+            
+        # end
     end
-    pop[argmin(f.(pop))]
+    # println("post break up :( 1")
+    final_scores = f.(pop)
+    x_best = pop[argmin(final_scores)]
+    y_best = minimum(final_scores)
+    
+    return x_best, y_best
     
 end
 
-function pop_main(d)
+
+
+function pop_penalty_opt(f, x0, p::Pop_Params, e::EvalCount, pparams::Penalty_Params=default_pparams)
+    # dimensions of the problem 
+    d = length(x0)
+
     # initialization
-    m  = 5 # number of design points
+    m  = p.m # number of design points
     μ = abs.(randn(d)) # means of distributions
     σ = abs.(randn(d)) # standard devs of distributions
-    init_pop = rand_population_cauchy(m, μ, σ)
-    for (i,x) in enumerate(init_pop)
-        println("init pop \n $i $x \n")
-    end
-    # println("init_pop, $init_pop")
+    pop = rand_population_cauchy(m, μ, σ)
+
+    # function redefinition to include penalties 
+    fobj = x -> f(x) + p_mix(e.c, x, pparams.ρ1, pparams.ρ2)
+
+    x_best, y_best = gen_alg(fobj, pop, p.k_max, p.S, p.C, p.M, e)
+
+    # println("post break up :( 2")
+
+    return [x_best], [y_best], "gen_alg"
     
-    keep = 2 # design points to select
-    parents = select(keep, f.(init_pop))
-    ch = [p for p in parents]
-    ch2 = [p[2] for p in parents]
-    println("parents $parents, ch $ch, ch2 $ch2 \n")
-
-    λ = 0.5
-    children = [crossover(λ, init_pop[p[1]], init_pop[p[2]]) for p in parents]
-    for (i,x) in enumerate(children)
-        println("children \n $i $x \n")
-    end
-
-    σ = 0.1
-    init_pop .= mutate.(σ, children )
-    for (i,x) in enumerate(init_pop)
-        println("new_pop \n $i $x \n")
-    end
-
 end
 
 # pop_main(10)
+
+    # for (i,x) in enumerate(init_pop)
+    #     println("init pop \n $i $x \n")
+    # end
+    # # println("init_pop, $init_pop")
+    
+    # keep = 2 # design points to select
+    # parents = select(keep, f.(init_pop))
+    # ch = [p for p in parents]
+    # ch2 = [p[2] for p in parents]
+    # println("parents $parents, ch $ch, ch2 $ch2 \n")
+
+    # λ = 0.5
+    # children = [crossover(λ, init_pop[p[1]], init_pop[p[2]]) for p in parents]
+    # for (i,x) in enumerate(children)
+    #     println("children \n $i $x \n")
+    # end
+
+    # σ = 0.1
+    # init_pop .= mutate.(σ, children )
+    # for (i,x) in enumerate(init_pop)
+    #     println("new_pop \n $i $x \n")
+    # end
+
+# function pop_main(f, x0, p::Pop_Params, e::EvalCount)
+#     # dimensions of the problem 
+#     d = length(x0)
+
+#     # initialization
+#     m  = p.m # number of design points
+#     μ = abs.(randn(d)) # means of distributions
+#     σ = abs.(randn(d)) # standard devs of distributions
+#     pop = rand_population_cauchy(m, μ, σ)
+
+#     # run 
+#     x_best, y_best = gen_alg(f, pop, p.k_max, p.S, p.C, p.M, e)
+#     return x_best, y_best
+# end
